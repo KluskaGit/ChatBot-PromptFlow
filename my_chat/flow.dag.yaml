@@ -9,6 +9,9 @@ inputs:
   question:
     type: string
     is_chat_input: true
+  model_selection:
+    type: string
+    default: gpt-4.1-mini
 outputs:
   answer:
     type: string
@@ -21,9 +24,8 @@ nodes:
     type: code
     path: chat.jinja2
   inputs:
-    deployment_name: gpt-4.1-mini
-    temperature: 0.7
+    deployment_name: ${inputs.model_selection}
     chat_history: ${inputs.chat_history}
     question: ${inputs.question}
-  connection: dl-conn #azure_openai_conn
+  connection: dl-conn
   api: chat

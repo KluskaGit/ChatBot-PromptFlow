@@ -15,7 +15,7 @@ try:
         name="dl-conn",
         api_key=os.environ["AZURE_OPENAI_API_KEY"],
         api_base=os.environ["AZURE_OPENAI_ENDPOINT"],
-        api_version="2024-02-01"
+        api_version="2024-12-01-preview"
     )
     pf.connections.create_or_update(conn)
 except Exception as e:
@@ -23,6 +23,12 @@ except Exception as e:
 
 st.set_page_config(page_title="ChatBot")
 st.title("Chat")
+
+with st.sidebar:
+    st.header("Wybór Modelu")
+    # Wpisz tutaj DOKŁADNE nazwy wdrożeń z Azure AI Studio!
+    dostepne_modele = ["gpt-4.1-mini", "o4-mini"] 
+    wybrany_model = st.selectbox("Wybierz model AI:", dostepne_modele)
 
 # Inicjalizacja pamięci historii czatu
 if "messages" not in st.session_state:
@@ -56,7 +62,8 @@ if prompt := st.chat_input("Napisz coś ..."):
             flow="my_chat", 
             inputs={
                 "question": prompt,
-                "chat_history": chat_history
+                "chat_history": chat_history,
+                "model_selection": wybrany_model
             }
         )
         
