@@ -18,6 +18,13 @@ outputs:
     reference: ${chat.output}
     is_chat_output: true
 nodes:
+- name: fetch_worldcup_news
+  type: python
+  source:
+    type: code
+    path: fetch_worldcup.py
+  inputs:
+    query: ${inputs.question}
 - name: chat
   type: llm
   source:
@@ -27,5 +34,6 @@ nodes:
     deployment_name: ${inputs.model_selection}
     chat_history: ${inputs.chat_history}
     question: ${inputs.question}
+    worldcup_context: ${fetch_worldcup_news.output}
   connection: dl-conn
   api: chat

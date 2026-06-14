@@ -7,19 +7,23 @@ import os
 # Wczytanie kluczy API z pliku .env
 load_dotenv()
 
-# Inicjalizacja klienta Prompt Flow
-pf = PFClient()
+@st.cache_resource
+def init_pf_client():
+    # Inicjalizacja klienta Prompt Flow
+    client = PFClient()
+    try:
+        conn = AzureOpenAIConnection(
+            name="dl-conn",
+            api_key=os.environ["AZURE_OPENAI_API_KEY"],
+            api_base=os.environ["AZURE_OPENAI_ENDPOINT"],
+            api_version="2024-12-01-preview"
+        )
+        client.connections.create_or_update(conn)
+    except Exception as e:
+        st.error(f"Błąd ładowania kluczy: {e}")
+    return client
 
-try:
-    conn = AzureOpenAIConnection(
-        name="dl-conn",
-        api_key=os.environ["AZURE_OPENAI_API_KEY"],
-        api_base=os.environ["AZURE_OPENAI_ENDPOINT"],
-        api_version="2024-12-01-preview"
-    )
-    pf.connections.create_or_update(conn)
-except Exception as e:
-    st.error(f"Błąd ładowania kluczy: {e}")
+pf = init_pf_client()
 
 st.set_page_config(page_title="ChatBot")
 st.title("Chat")
@@ -27,7 +31,7 @@ st.title("Chat")
 with st.sidebar:
     st.header("Wybór Modelu")
     # Wpisz tutaj DOKŁADNE nazwy wdrożeń z Azure AI Studio!
-    dostepne_modele = ["gpt-4.1-mini", "o4-mini"] 
+    dostepne_modele = ["gpt-4.1-mini"] 
     wybrany_model = st.selectbox("Wybierz model AI:", dostepne_modele)
 
 # Inicjalizacja pamięci historii czatu
