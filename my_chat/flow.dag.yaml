@@ -2,30 +2,29 @@ $schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
 environment:
   python_requirements_txt: requirements.txt
 inputs:
-  chat_history:
-    type: list
-    is_chat_history: true
-    default: []
   question:
     type: string
     is_chat_input: true
-  model_selection:
+  thread_id:
     type: string
-    default: gpt-4.1-mini
+    default: ""
+  agent_id:
+    type: string
 outputs:
   answer:
     type: string
-    reference: ${chat.output}
+    reference: ${call_agent.output.answer}
     is_chat_output: true
+  thread_id:
+    type: string
+    reference: ${call_agent.output.thread_id}
 nodes:
-- name: chat
-  type: llm
+- name: call_agent
+  type: python
   source:
     type: code
-    path: chat.jinja2
+    path: agent_node.py
   inputs:
-    deployment_name: ${inputs.model_selection}
-    chat_history: ${inputs.chat_history}
     question: ${inputs.question}
-  connection: dl-conn
-  api: chat
+    thread_id: ${inputs.thread_id}
+    agent_id: ${inputs.agent_id}

@@ -1,34 +1,35 @@
 import streamlit as st
 from promptflow.client import PFClient
-from promptflow.entities import AzureOpenAIConnection
 from dotenv import load_dotenv
 import os
 
-# Wczytanie kluczy API z pliku .env
-load_dotenv()
+# Wymuszamy wczytanie pliku .env, ale dodajemy też zabezpieczenie na sztywno
+load_dotenv(override=True)
 
-# Inicjalizacja klienta Prompt Flow
-pf = PFClient()
+# ---------------- ZABEZPIECZENIE ABSOLUTNE ----------------
+# Niezależnie od tego, co system ma w pamięci, nadpisujemy kluczowe zmienne.
+# Wskazujemy poprawny zasób, na którym znajduje się klasyczny Agent.
+os.environ["AZURE_OPENAI_ENDPOINT"] = "https://mundia-bot-test-resource.openai.azure.com/"
+# (Zakładam, że AZURE_OPENAI_API_KEY jest poprawnie w pliku .env)
+# ----------------------------------------------------------
 
-try:
-    conn = AzureOpenAIConnection(
-        name="dl-conn",
-        api_key=os.environ["AZURE_OPENAI_API_KEY"],
-        api_base=os.environ["AZURE_OPENAI_ENDPOINT"],
-        api_version="2024-12-01-preview"
-    )
-    pf.connections.create_or_update(conn)
-except Exception as e:
-    st.error(f"Błąd ładowania kluczy: {e}")
+@st.cache_resource
+def init_pf_client():
+    pf_client = PFClient()
+    return pf_client
 
-st.set_page_config(page_title="ChatBot")
-st.title("Chat")
+pf = init_pf_client()
+
+st.set_page_config(page_title="Kibic-Bot", page_icon="⚽")
+st.title("⚽ Chat: Poradnik Kibica")
 
 with st.sidebar:
-    st.header("Wybór Modelu")
-    # Wpisz tutaj DOKŁADNE nazwy wdrożeń z Azure AI Studio!
-    dostepne_modele = ["gpt-4.1-mini", "o4-mini"] 
-    wybrany_model = st.selectbox("Wybierz model AI:", dostepne_modele)
+    st.header("Opcje")
+    if st.button("Wyczyść historię (Nowy wątek)"):
+        st.session_state.messages = []
+        if "thread_id" in st.session_state:
+            del st.session_state["thread_id"]
+        st.rerun()
 
 # Inicjalizacja pamięci historii czatu
 if "messages" not in st.session_state:
@@ -40,35 +41,40 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Pole tekstowe na dole ekranu
-if prompt := st.chat_input("Napisz coś ..."):
+if prompt := st.chat_input("Napisz coś o piłce nożnej..."):
     
     # 1. Wyświetlamy to, co wpisał użytkownik
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # 2. Format historii dla PromptFlow
-    chat_history = []
-    for i in range(0, len(st.session_state.messages) - 1, 2):
-        if st.session_state.messages[i]["role"] == "user" and st.session_state.messages[i+1]["role"] == "assistant":
-            chat_history.append({
-                "inputs": {"question": st.session_state.messages[i]["content"]},
-                "outputs": {"answer": st.session_state.messages[i+1]["content"]}
-            })
+    # 2. Pobieramy ID wątku z sesji, jeśli już istnieje
+    thread_id = st.session_state.get("thread_id", "")
+    
+    # 3. NA SZTYWNO WPISANE ID NOWEGO, POPRAWNEGO AGENTA (zamiast pobierania z .env)
+    agent_id = "asst_2u6X9ZnTysgj4CQYiTngtrME"
 
-    # 3. Wysyłamy zapytanie do modelu (z animacją ładowania)
+    # 4. Wysyłamy zapytanie do modelu
     with st.chat_message("assistant"):
-        result = pf.test(
-            flow="my_chat", 
-            inputs={
-                "question": prompt,
-                "chat_history": chat_history,
-                "model_selection": wybrany_model
-            }
-        )
-        
-        answer_generator = result["answer"]
-        answer = st.write_stream(answer_generator)
+        try:
+            result = pf.test(
+                flow="my_chat", 
+                inputs={
+                    "question": prompt,
+                    "thread_id": thread_id,
+                    "agent_id": agent_id
+                }
+            )
             
-    # 4. Zapisujemy odpowiedź modelu w historii
-    st.session_state.messages.append({"role": "assistant", "content": answer})
+            # PromptFlow z Agentem zwróci gotowy tekst i ID wątku
+            answer = result["answer"]
+            st.markdown(answer)
+            
+            if result.get("thread_id"):
+                st.session_state.thread_id = result["thread_id"]
+                
+            # Zapisujemy odpowiedź modelu w historii
+            st.session_state.messages.append({"role": "assistant", "content": answer})
+        except Exception as e:
+            st.error(f"Wystąpił błąd podczas generowania odpowiedzi: {e}")
+            st.session_state.messages.pop()  # Usuwamy nieudane zapytanie usera z historii
