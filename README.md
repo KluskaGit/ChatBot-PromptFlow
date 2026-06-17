@@ -56,7 +56,7 @@
 ## Usage
 1. Activate the virtual environment
     ```sh
-        source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+        source venv/bin/activate  # On Windows use `.venv\Scripts\activate`
     ```
 2. Run the Streamlit app
     ```sh
