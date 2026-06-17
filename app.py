@@ -4,10 +4,8 @@ from promptflow.entities import AzureOpenAIConnection
 from dotenv import load_dotenv
 import os
 
-# Wczytanie kluczy API z pliku .env
 load_dotenv()
 
-# Inicjalizacja klienta Prompt Flow
 pf = PFClient()
 
 try:
@@ -28,28 +26,26 @@ st.caption("Zapytaj mnie o najświeższe wyniki, składy i ciekawostki z Mistrzo
 with st.sidebar:
     st.markdown("### 🏟️ Panel Sterowania")
     st.header("Wybór Modelu")
-    # Wpisz tutaj DOKŁADNE nazwy wdrożeń z Azure AI Studio!
     dostepne_modele = ["gpt-4.1-mini"] 
     wybrany_model = st.selectbox("Wybierz model AI:", dostepne_modele)
 
-# Inicjalizacja pamięci historii czatu
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Wyświetlanie dotychczasowej rozmowy na ekranie
+
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Pole tekstowe na dole ekranu
+
 if prompt := st.chat_input("Napisz coś ..."):
     
-    # 1. Wyświetlamy to, co wpisał użytkownik
+    
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # 2. Format historii dla PromptFlow
     chat_history = []
     for i in range(0, len(st.session_state.messages) - 1, 2):
         if st.session_state.messages[i]["role"] == "user" and st.session_state.messages[i+1]["role"] == "assistant":
@@ -58,7 +54,6 @@ if prompt := st.chat_input("Napisz coś ..."):
                 "outputs": {"answer": st.session_state.messages[i+1]["content"]}
             })
 
-    # 3. Wysyłamy zapytanie do modelu (z animacją ładowania)
     with st.chat_message("assistant"):
         result = pf.test(
             flow="my_chat", 
@@ -72,5 +67,4 @@ if prompt := st.chat_input("Napisz coś ..."):
         answer_generator = result["answer"]
         answer = st.write_stream(answer_generator)
             
-    # 4. Zapisujemy odpowiedź modelu w historii
     st.session_state.messages.append({"role": "assistant", "content": answer})

@@ -34,7 +34,7 @@
 * Python 3.8 or higher
 * Azure OpenAI API key
 * Azure OpenAI Base URL
-* Model deployed in Azure AI Foundry (gpt-4.1-mini or o4-mini)
+* Model deployed in Azure AI Foundry (gpt-4.1-mini)
 
 ### Installation
 1. Clone the repo

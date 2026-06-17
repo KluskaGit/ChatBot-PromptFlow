@@ -8,10 +8,8 @@ def search_worldcup_news(query: str, max_results: int = 5) -> str:
     """
     try:
         results = []
-        # Automatyczne dodanie kontekstu mundialu do każdego zapytania
         worldcup_query = f"Mistrzostwa Świata w piłce nożnej 2026 mundial {query}"
         
-        # Inicjalizacja klienta DuckDuckGo
         with DDGS() as ddgs:
             for r in ddgs.text(worldcup_query, max_results=max_results):
                 title = r.get('title', 'Brak tytułu')
