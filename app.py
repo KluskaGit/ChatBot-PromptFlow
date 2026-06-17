@@ -17,17 +17,19 @@ try:
         api_base=os.environ["AZURE_OPENAI_ENDPOINT"],
         api_version="2024-12-01-preview"
     )
-    pf.connections.create_or_update(conn)
+    pf.connections.create_or_update(conn)  # type: ignore
 except Exception as e:
     st.error(f"Błąd ładowania kluczy: {e}")
 
-st.set_page_config(page_title="ChatBot")
-st.title("Chat")
+st.set_page_config(page_title="ChatBot Mundial 2026", page_icon="⚽")
+st.title("⚽ ChatBot Sportowy - Mundial 2026 🏆")
+st.caption("Zapytaj mnie o najświeższe wyniki, składy i ciekawostki z Mistrzostw Świata!")
 
 with st.sidebar:
+    st.markdown("### 🏟️ Panel Sterowania")
     st.header("Wybór Modelu")
     # Wpisz tutaj DOKŁADNE nazwy wdrożeń z Azure AI Studio!
-    dostepne_modele = ["gpt-4.1-mini", "o4-mini"] 
+    dostepne_modele = ["gpt-4.1-mini"] 
     wybrany_model = st.selectbox("Wybierz model AI:", dostepne_modele)
 
 # Inicjalizacja pamięci historii czatu

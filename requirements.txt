@@ -5,3 +5,4 @@ promptflow[azure]>=1.18.5
 python-dotenv>=1.2.2
 pyyaml>=6.0.3
 streamlit>=1.58.0
+duckduckgo-search

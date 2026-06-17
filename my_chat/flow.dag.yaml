@@ -18,6 +18,13 @@ outputs:
     reference: ${chat.output}
     is_chat_output: true
 nodes:
+- name: search_worldcup
+  type: python
+  source:
+    type: code
+    path: duckduckgo_tool.py
+  inputs:
+    query: ${inputs.question}
 - name: chat
   type: llm
   source:
@@ -27,5 +34,6 @@ nodes:
     deployment_name: ${inputs.model_selection}
     chat_history: ${inputs.chat_history}
     question: ${inputs.question}
+    search_context: ${search_worldcup.output}
   connection: dl-conn
   api: chat
