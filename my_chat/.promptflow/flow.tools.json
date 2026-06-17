@@ -4,6 +4,11 @@
     "chat.jinja2": {
       "type": "llm",
       "inputs": {
+        "search_context": {
+          "type": [
+            "string"
+          ]
+        },
         "chat_history": {
           "type": [
             "string"
@@ -16,6 +21,25 @@
         }
       },
       "source": "chat.jinja2"
+    },
+    "duckduckgo_tool.py": {
+      "type": "python",
+      "inputs": {
+        "query": {
+          "type": [
+            "string"
+          ]
+        },
+        "max_results": {
+          "type": [
+            "int"
+          ],
+          "default": "5"
+        }
+      },
+      "description": "Wyszukuje informacje o Mistrzostwach \u015awiata 2026 w internecie za pomoc\u0105 DuckDuckGo.",
+      "source": "duckduckgo_tool.py",
+      "function": "search_worldcup_news"
     }
   }
 }
