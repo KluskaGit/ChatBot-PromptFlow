@@ -26,7 +26,7 @@ st.caption("Zapytaj mnie o najświeższe wyniki, składy i ciekawostki z Mistrzo
 with st.sidebar:
     st.markdown("### 🏟️ Panel Sterowania")
     st.header("Wybór Modelu")
-    dostepne_modele = ["gpt-4.1-mini"] 
+    dostepne_modele = ["gpt-4.1-mini", "o4-mini"] 
     wybrany_model = st.selectbox("Wybierz model AI:", dostepne_modele)
 
 
